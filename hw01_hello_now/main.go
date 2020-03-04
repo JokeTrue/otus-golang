@@ -18,8 +18,8 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		fmt.Printf("current time: %s\n", formatTime(localTime))
-		fmt.Printf("exact time: %s\n", formatTime(exactTime))
 	}
+
+	fmt.Printf("current time: %s\n", formatTime(localTime))
+	fmt.Printf("exact time: %s\n", formatTime(exactTime))
 }
