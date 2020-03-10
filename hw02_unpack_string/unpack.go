@@ -9,7 +9,8 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-var LettersCountRegexp = regexp.MustCompile("(?P<letter>[\\p{L}])(?P<count>[0-9]*)?")
+var LettersCountRegexp = regexp.MustCompile(`(?P<letter>[\p{L}])(?P<count>[0-9]*)?`)
+
 const MaxLettersCount int = 9
 
 func Unpack(s string) (string, error) {
