@@ -56,6 +56,15 @@ func TestUnpack(t *testing.T) {
 			expected: "",
 			err: ErrInvalidString,
 		},
+		{
+			input: "♬1♪2",
+			expected: "",
+			err: ErrInvalidString,
+		},
+		{
+			input: "д2р3ф2",
+			expected: "ддрррфф",
+		},
 	} {
 		t.Run(tst.input, func(t *testing.T) {
 			result, err := Unpack(tst.input)

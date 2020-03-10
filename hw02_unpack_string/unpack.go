@@ -9,8 +9,8 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-var LettersCountRegexp = regexp.MustCompile("(?P<letter>[a-zA-Z])(?P<count>[0-9]*)?")
-var MaxLettersCount = 9
+var LettersCountRegexp = regexp.MustCompile("(?P<letter>[\\p{L}])(?P<count>[0-9]*)?")
+const MaxLettersCount int = 9
 
 func Unpack(s string) (string, error) {
 	if len(s) == 0 {
@@ -22,7 +22,7 @@ func Unpack(s string) (string, error) {
 	}
 
 	matches := LettersCountRegexp.FindAllStringSubmatch(s, -1)
-	builder := strings.Builder{}
+	var builder strings.Builder
 
 	for _, match := range matches {
 		matchedLetter, rawCount := match[1], match[2]
