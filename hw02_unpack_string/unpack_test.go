@@ -36,10 +36,41 @@ func TestUnpack(t *testing.T) {
 			input:    "",
 			expected: "",
 		},
+		{
+			input:    "a2o3f0",
+			expected: "",
+			err:      ErrInvalidString,
+		},
+		{
+			input:    "a2c000",
+			expected: "",
+			err:      ErrInvalidString,
+		},
+		{
+			input: "!@#!@%@$!@#",
+			expected: "",
+			err: ErrInvalidString,
+		},
+		{
+			input: "a100000000000000000000000000",
+			expected: "",
+			err: ErrInvalidString,
+		},
+		{
+			input: "♬1♪2",
+			expected: "",
+			err: ErrInvalidString,
+		},
+		{
+			input: "д2р3ф2",
+			expected: "ддрррфф",
+		},
 	} {
-		result, err := Unpack(tst.input)
-		require.Equal(t, tst.err, err)
-		require.Equal(t, tst.expected, result)
+		t.Run(tst.input, func(t *testing.T) {
+			result, err := Unpack(tst.input)
+			require.Equal(t, tst.err, err)
+			require.Equal(t, tst.expected, result)
+		})
 	}
 }
 
@@ -64,8 +95,10 @@ func TestUnpackWithEscape(t *testing.T) {
 			expected: `qwe\3`,
 		},
 	} {
-		result, err := Unpack(tst.input)
-		require.Equal(t, tst.err, err)
-		require.Equal(t, tst.expected, result)
+		t.Run(tst.input, func(t *testing.T) {
+			result, err := Unpack(tst.input)
+			require.Equal(t, tst.err, err)
+			require.Equal(t, tst.expected, result)
+		})
 	}
 }
