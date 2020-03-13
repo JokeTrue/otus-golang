@@ -34,4 +34,4 @@
 ### Подсказки
 - `regexp.MustCompile`
 - `strings.Split`
-- `sort.Slice123`
+- `sort.Slice`
