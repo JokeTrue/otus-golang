@@ -14,7 +14,7 @@ var SplitRegexp = regexp.MustCompile(`[\n\t.,!?;: «»()—\"']+`)
 var SeparatorRegexp = regexp.MustCompile(`^[\n\t.,!?;:\- «»()—\"']+$`)
 
 func Top10(text string, caseInsensitive bool) []string {
-	var topTenWords []string
+	topTenWords := make([]string, 0, 10)
 
 	if len(text) == 0 {
 		return topTenWords
@@ -29,15 +29,11 @@ func Top10(text string, caseInsensitive bool) []string {
 				word = strings.ToLower(word)
 			}
 
-			if _, ok := wordsCountMap[word]; ok {
-				wordsCountMap[word]++
-			} else {
-				wordsCountMap[word] = 1
-			}
+			wordsCountMap[word]++
 		}
 	}
 
-	sortedWordsCount := make([]WordCount, 0)
+	sortedWordsCount := make([]WordCount, 0, len(wordsCountMap))
 	for k, v := range wordsCountMap {
 		sortedWordsCount = append(sortedWordsCount, WordCount{k, v})
 	}
