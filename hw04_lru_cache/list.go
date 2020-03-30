@@ -8,7 +8,6 @@ type List interface {
 	PushBack(v interface{}) *listItem
 	Remove(i *listItem)
 	MoveToFront(i *listItem)
-	Search(v interface{}) *listItem
 }
 
 type listItem struct {
@@ -128,19 +127,6 @@ func (l *list) MoveToFront(i *listItem) {
 	i.Next = tmpFirstItem
 
 	tmpFirstItem.Prev = i
-}
-
-func (l list) Search(v interface{}) *listItem {
-	var found *listItem
-
-	for i := l.firstItem; i != nil; i = i.Next {
-		if i.Value == v {
-			found = i
-			break
-		}
-	}
-
-	return found
 }
 
 func NewList() List {

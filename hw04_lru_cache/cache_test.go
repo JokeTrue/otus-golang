@@ -65,7 +65,7 @@ func TestCache(t *testing.T) {
 		c := NewCache(30)
 
 		for i := 0; i < 31; i++ {
-			c.Set(Key('A' + i), i)
+			c.Set(Key('A'+i), i)
 		}
 
 		val, ok := c.Get("A")
@@ -74,6 +74,24 @@ func TestCache(t *testing.T) {
 
 		wasInCache := c.Set("B", 1)
 		require.True(t, wasInCache)
+	})
+
+	t.Run("key movements", func(t *testing.T) {
+		c := NewCache(3)
+
+		c.Set("A", 1)
+		c.Set("B", 2)
+		c.Set("C", 3)
+
+		c.Get("A")
+		c.Get("B")
+		c.Get("A")
+		c.Get("B")
+		c.Set("D", 4)
+
+		val, ok := c.Get("C")
+		require.False(t, ok)
+		require.Nil(t, val)
 	})
 }
 
