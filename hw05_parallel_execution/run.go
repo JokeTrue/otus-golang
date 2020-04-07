@@ -10,12 +10,15 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 type Task func() error
 
 func Run(tasks []Task, n int, m int) error {
-	errCount := 0
-	tasksCh := make(chan Task, len(tasks))
+	var (
+		errCount int
 
-	mu := sync.Mutex{}
-	wg := sync.WaitGroup{}
+		mu sync.Mutex
+		wg sync.WaitGroup
+	)
+
 	wg.Add(n)
+	tasksCh := make(chan Task, len(tasks))
 
 	for i := 0; i < n; i++ {
 		go func() {
