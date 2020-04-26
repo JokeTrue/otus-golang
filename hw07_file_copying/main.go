@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"log"
+	"os"
 )
 
 var (
@@ -18,5 +20,19 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here
+	logger := log.New(os.Stderr, "", 0)
+
+	if len(from) == 0 {
+		logger.Println("Provide '-from=<...>' argument")
+		return
+	}
+	if len(to) == 0 {
+		logger.Println("Provide '-to=<...>' argument")
+		return
+	}
+
+	err := Copy(from, to, offset, limit)
+	if err != nil {
+		logger.Println(err)
+	}
 }
