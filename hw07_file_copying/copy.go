@@ -15,8 +15,7 @@ var (
 
 func Copy(fromPath string, toPath string, offset, limit int64) error {
 	info, err := os.Stat(fromPath)
-
-	if os.IsNotExist(err) {
+	if err != nil {
 		return err
 	}
 	if info.IsDir() || info.Size() == 0 {
