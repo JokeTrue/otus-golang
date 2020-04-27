@@ -2,6 +2,7 @@
 set -euo pipefail
 
 go build -o go-envdir
+chmod +x go-envdir
 
 export HELLO="SHOULD_REPLACE"
 export FOO="SHOULD_REPLACE"
