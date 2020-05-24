@@ -3,6 +3,7 @@
 package models
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -19,22 +20,22 @@ func TestUserValidation(t *testing.T) {
 
 	t.Run("ID length", func(t *testing.T) {
 		errs, _ := User{ID: "441e0ae8644611eab8a0632c74ca9988"}.Validate()
-		require.Len(t, errs, 0)
+		require.Len(t, errs, 3)
 
 		errs, _ = User{ID: "123"}.Validate()
-		require.Equal(t, len(errs), 1)
+		require.Equal(t, len(errs), 4)
 		require.Equal(t, errs[0].Field, "ID")
 		require.NotNil(t, errs[0].Err)
 	})
 
 	t.Run("email regexp", func(t *testing.T) {
-		errs, _ := User{Email: "owl@@otus.ru"}.Validate()
-		require.Len(t, errs, 0)
+		errs, _ := User{Email: "owl@otus.ru"}.Validate()
+		require.Len(t, errs, 3)
 
 		errs, _ = User{Email: "isnotvalid@@email"}.Validate()
-		require.Equal(t, len(errs), 1)
-		require.Equal(t, errs[0].Field, "Email")
-		require.NotNil(t, errs[0].Err)
+		require.Equal(t, len(errs), 4)
+		require.Equal(t, errs[2].Field, "Email")
+		require.NotNil(t, errs[2].Err)
 	})
 
 	t.Run("age borders", func(t *testing.T) {
@@ -43,17 +44,25 @@ func TestUserValidation(t *testing.T) {
 
 		for _, a := range []int{18, 34, 50} {
 			errs, _ := User{Age: a}.Validate()
-			require.Len(t, errs, 0)
+			require.Len(t, errs, 3)
 		}
 
 		errs, _ = User{Age: 51}.Validate()
-		require.Equal(t, len(errs), 1)
-		require.Equal(t, errs[0].Field, "Age")
-		require.NotNil(t, errs[0].Err)
+		require.Equal(t, len(errs), 4)
+		require.Equal(t, errs[1].Field, "Age")
+		require.NotNil(t, errs[1].Err)
 	})
 
 	t.Run("addresses slice", func(t *testing.T) {
-		// Write me :)
+		addresses := []string{"2557 Lynden Road"}
+		errs, _ := User{Addresses: addresses}.Validate()
+		require.Equal(t, len(errs), 5)
+		require.Equal(t, errs[4].Field, "Addresses[i]")
+		require.NotNil(t, errs[4].Err)
+
+		addresses[0] = strings.Repeat("A", 250)
+		errs, _ = User{Addresses: addresses}.Validate()
+		require.Equal(t, len(errs), 4)
 	})
 }
 
@@ -63,7 +72,7 @@ func TestAppValidation(t *testing.T) {
 	require.True(t, ok)
 
 	t.Run("version length", func(t *testing.T) {
-		errs, _ = App{"0.1"}.Validate()
+		errs, _ := App{"0.1"}.Validate()
 		require.Equal(t, len(errs), 1)
 		require.Equal(t, errs[0].Field, "Version")
 		require.NotNil(t, errs[0].Err)
