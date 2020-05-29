@@ -4,12 +4,19 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net"
+	"os"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 )
+
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 
 func TestTelnetClient(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
@@ -37,7 +44,7 @@ func TestTelnetClient(t *testing.T) {
 			err = client.Send()
 			require.NoError(t, err)
 
-			err = client.Receive()
+ 			err = client.Receive()
 			require.NoError(t, err)
 			require.Equal(t, "world\n", out.String())
 		}()
@@ -61,5 +68,12 @@ func TestTelnetClient(t *testing.T) {
 		}()
 
 		wg.Wait()
+	})
+
+	t.Run("connect to wrong host", func(t *testing.T) {
+		d, err := time.ParseDuration("10s")
+		require.NoError(t, err)
+		client := NewTelnetClient("mailru.ru", d, os.Stdin, os.Stdout)
+		require.Error(t, client.Connect())
 	})
 }
