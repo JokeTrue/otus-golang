@@ -2,9 +2,8 @@ package hw10_program_optimization //nolint:golint,stylecheck
 
 import (
 	"bufio"
-	"fmt"
+	"errors"
 	"io"
-	"log"
 	"strings"
 
 	"github.com/buger/jsonparser"
@@ -14,7 +13,7 @@ type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	if domain == "" {
-		return nil, fmt.Errorf("empty domain")
+		return nil, errors.New("empty domain")
 	}
 
 	stat := make(DomainStat)
@@ -29,7 +28,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	return stat, nil
