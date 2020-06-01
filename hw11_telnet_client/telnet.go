@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"io"
 	"net"
 	"time"
@@ -15,65 +14,37 @@ type TelnetClient interface {
 }
 
 type Client struct {
-	Address    string
-	Timeout    time.Duration
-	In         io.ReadCloser
-	Out        io.Writer
-	Connection net.Conn
+	address    string
+	timeout    time.Duration
+	in         io.ReadCloser
+	out        io.Writer
+	connection net.Conn
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
 	return &Client{
-		Address: address,
-		Timeout: timeout,
-		In:      in,
-		Out:     out,
+		address: address,
+		timeout: timeout,
+		in:      in,
+		out:     out,
 	}
 }
 
 func (c *Client) Connect() (err error) {
-	c.Connection, err = net.DialTimeout("tcp", c.Address, c.Timeout)
+	c.connection, err = net.DialTimeout("tcp", c.address, c.timeout)
 	return err
 }
 
 func (c *Client) Close() error {
-	err := c.In.Close()
-	if err != nil {
-		return err
-	}
-	err = c.Connection.Close()
-	return err
-}
-
-func (c *Client) execute(in io.Reader, out io.Writer) error {
-	writer := bufio.NewWriter(out)
-	scanner := bufio.NewScanner(in)
-	for {
-		scanned := scanner.Scan()
-		if !scanned {
-			if err := scanner.Err(); err != nil {
-				return err
-			}
-			break
-		}
-		_, err := writer.WriteString(scanner.Text() + "\n")
-		if err != nil {
-			return err
-		}
-		err = writer.Flush()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return c.connection.Close()
 }
 
 func (c *Client) Send() error {
-	err := c.execute(c.In, c.Connection)
+	_, err := io.Copy(c.connection, c.in)
 	return err
 }
 
 func (c *Client) Receive() error {
-	err := c.execute(c.Connection, c.Out)
+	_, err := io.Copy(c.out, c.connection)
 	return err
 }

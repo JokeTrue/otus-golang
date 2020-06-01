@@ -12,12 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var _ = func() bool {
-	testing.Init()
-	return true
-}()
-
-
 func TestTelnetClient(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
 		l, err := net.Listen("tcp", "127.0.0.1:")
@@ -44,7 +38,7 @@ func TestTelnetClient(t *testing.T) {
 			err = client.Send()
 			require.NoError(t, err)
 
- 			err = client.Receive()
+			err = client.Receive()
 			require.NoError(t, err)
 			require.Equal(t, "world\n", out.String())
 		}()

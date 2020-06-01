@@ -11,43 +11,26 @@ import (
 	"time"
 )
 
-var timeout string
+var timeout time.Duration
+
+const minArgsCount = 3
+const defaultTimeout = 10
 
 func init() {
-	flag.StringVar(&timeout, "timeout", "10s", "connection timeout")
-	flag.Parse()
+	flag.DurationVar(&timeout, "timeout", defaultTimeout*time.Second, "connection timeout")
 }
 
-const MinArgsCount = 3
-
-func Worker(ctx context.Context, handler func() error, cancelFunc context.CancelFunc) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			err := handler()
-			if err != nil {
-				cancelFunc()
-				return
-			}
-		}
-	}
-}
 func main() {
+	flag.Parse()
+
 	argsCount := len(os.Args)
-	if argsCount < MinArgsCount {
+	if argsCount < minArgsCount {
 		log.Fatalf("Expected to have at least 3 arguments, but got %d", argsCount)
 	}
 
 	host, port := os.Args[2], os.Args[3]
-	parsedTimeout, err := time.ParseDuration(timeout)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	client := NewTelnetClient(net.JoinHostPort(host, port), parsedTimeout, os.Stdin, os.Stdout)
-	err = client.Connect()
+	client := NewTelnetClient(net.JoinHostPort(host, port), timeout, os.Stdin, os.Stdout)
+	err := client.Connect()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -58,22 +41,26 @@ func main() {
 	}()
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
-	go Worker(ctx, client.Receive, cancelFunc)
-	go Worker(ctx, client.Send, cancelFunc)
+	go worker(client.Receive, cancelFunc)
+	go worker(client.Send, cancelFunc)
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 
-	for {
-		select {
-		case <-sigCh:
-			cancelFunc()
-			close(sigCh)
-			return
+	select {
+	case <-sigCh:
+		cancelFunc()
+		signal.Stop(sigCh)
+		return
 
-		case <-ctx.Done():
-			close(sigCh)
-			return
-		}
+	case <-ctx.Done():
+		close(sigCh)
+		return
+	}
+}
+
+func worker(handler func() error, cancelFunc context.CancelFunc) {
+	if err := handler(); err != nil {
+		cancelFunc()
 	}
 }
