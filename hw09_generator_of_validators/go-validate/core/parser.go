@@ -29,14 +29,14 @@ func Parse(modelFilePath string) (string, []ValidatedStruct, error) {
 		}
 
 		structName := t.Name.Name
-		validatedStruct := ValidatedStruct{
+		ValidatedStruct := ValidatedStruct{
 			StructName:      structName,
 			StructShortName: strings.ToLower(structName[0:1]),
 		}
 
 		for _, field := range s.Fields.List {
-			fieldType := GetFieldType(file, field)
-			if !Contains(supportedTypes, fieldType) {
+			fieldType := getFieldType(file, field)
+			if !contains(supportedTypes, fieldType) {
 				continue
 			}
 			if field.Tag == nil {
@@ -47,27 +47,27 @@ func Parse(modelFilePath string) (string, []ValidatedStruct, error) {
 			for _, tag := range tags {
 				fieldName := field.Names[0].Name
 
-				res, err := ConvertTagToValidator(validatedStruct.StructShortName, fieldName, fieldType, tag)
+				res, err := convertTagToValidator(ValidatedStruct.StructShortName, fieldName, fieldType, tag)
 				if err != nil {
 					return false
 				}
-				validatedStruct.FieldsValidators = append(validatedStruct.FieldsValidators, res...)
+				ValidatedStruct.FieldsValidators = append(ValidatedStruct.FieldsValidators, res...)
 			}
 		}
-		validatedStructs = append(validatedStructs, validatedStruct)
+		validatedStructs = append(validatedStructs, ValidatedStruct)
 		return false
 	})
 
 	return file.Name.Name, validatedStructs, err
 }
 
-func ConvertTagToValidator(structShortName, fieldName, fieldType, rawTagString string) ([]FieldValidator, error) {
+func convertTagToValidator(structShortName, fieldName, fieldType, rawTagString string) ([]fieldValidator, error) {
 	if rawTagString == "" {
 		return nil, nil
 	}
 
 	var err error
-	validators := make([]FieldValidator, 0)
+	validators := make([]fieldValidator, 0)
 	rawTags := strings.Split(rawTagString, " ")
 
 	for _, rawTag := range rawTags {
@@ -84,7 +84,7 @@ func ConvertTagToValidator(structShortName, fieldName, fieldType, rawTagString s
 				break
 			}
 			function, rawArgs := tokens[0], tokens[1]
-			validators = append(validators, FieldValidator{
+			validators = append(validators, fieldValidator{
 				StructShortName: structShortName,
 				FieldName:       fieldName,
 				FieldType:       fieldType,

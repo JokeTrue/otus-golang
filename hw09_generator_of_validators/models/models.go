@@ -1,6 +1,6 @@
 package models
 
-//go:generate go-validate -modelFilePath=$GOFILE
+//go:generate go-validate -path=$GOFILE
 
 type UserRole string
 

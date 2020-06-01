@@ -2,6 +2,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -12,111 +13,99 @@ type ValidationError struct {
 	Err   error
 }
 
-
 func (u User) Validate() ([]ValidationError, error) {
-	var errors []ValidationError
-	
-	
+	var errorsList []ValidationError
+
 	if len(u.ID) != 32 {
-	  	errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "ID",
-			Err: fmt.Errorf("expected length to be 32"),
-	  	})
+			Err:   fmt.Errorf("length expected to be 32, not %d", len(u.ID)),
+		})
 	}
-	
-	
+
 	if u.Age < 18 {
-		errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "Age",
-			Err: fmt.Errorf("value is less then min"),
-	  	})
+			Err:   fmt.Errorf("value is expected to be less then 18, but it's %d", u.Age),
+		})
 	}
-	
-	
+
 	if u.Age > 50 {
-		errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "Age",
-			Err: fmt.Errorf("value is more than max"),
-	  	})
+			Err:   fmt.Errorf("value is expected to be more then 50, but its %d", u.Age),
+		})
 	}
-	
-	
+
 	matched, err := regexp.MatchString("^\\w+@\\w+\\.\\w+$", u.Email)
 	if err != nil {
-	  	return errors, err
+		return errorsList, err
 	}
 	if !matched {
-	  	errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "Email",
-			Err: fmt.Errorf("didnt pass regexp"),
-	  	})
+			Err:   errors.New("value didnt pass regex '^\\w+@\\w+\\.\\w+$' with a value 'u.Email'"),
+		})
 	}
-	
-	
+
 	allowedValues := strings.Split("admin,stuff", ",")
-	passed := false
+	var passed bool
 	for _, i := range allowedValues {
-	  	if string(u.Role) == i {
+		if string(u.Role) == i {
 			passed = true
 			break
-	  	}
+		}
 	}
 	if !passed {
-	  	errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "Role",
-			Err: fmt.Errorf("didnt found value in allowed list"),
-	  	})
+			Err:   fmt.Errorf("didnt found value in allowed list"),
+		})
 	}
-	
-	for i, _ := range u.Addresses {
-		
-		
-	if len(u.Addresses[i]) != 250 {
-	  	errors = append(errors, ValidationError{
-			Field: "Addresses[i]",
-			Err: fmt.Errorf("expected length to be 250"),
-	  	})
-	}
-	}
-	
-	return errors, nil
-}
 
+	for i, _ := range u.Addresses {
+
+		if len(u.Addresses[i]) != 250 {
+			errorsList = append(errorsList, ValidationError{
+				Field: "Addresses[i]",
+				Err:   fmt.Errorf("length expected to be 250, not %d", len(u.Addresses[i])),
+			})
+		}
+	}
+
+	return errorsList, nil
+}
 
 func (a App) Validate() ([]ValidationError, error) {
-	var errors []ValidationError
-	
-	
+	var errorsList []ValidationError
+
 	if len(a.Version) != 5 {
-	  	errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "Version",
-			Err: fmt.Errorf("expected length to be 5"),
-	  	})
+			Err:   fmt.Errorf("length expected to be 5, not %d", len(a.Version)),
+		})
 	}
-	
-	return errors, nil
+
+	return errorsList, nil
 }
 
-
 func (r Response) Validate() ([]ValidationError, error) {
-	var errors []ValidationError
-	
-	
-	allowedValues := []int{ 200,404,500 }
-	passed := false
+	var errorsList []ValidationError
+
+	allowedValues := []int{200, 404, 500}
+	var passed bool
 	for _, i := range allowedValues {
 		if r.Code == i {
 			passed = true
 			break
-	  	}
+		}
 	}
 	if !passed {
-	  	errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "Code",
-			Err: fmt.Errorf("didnt found value in allowed list"),
-	  	})
+			Err:   fmt.Errorf("didnt found value in allowed list"),
+		})
 	}
-	
-	return errors, nil
-}
 
+	return errorsList, nil
+}

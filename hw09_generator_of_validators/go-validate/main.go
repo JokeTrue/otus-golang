@@ -13,7 +13,7 @@ var modelFilePath string
 var errorLogger = log.New(os.Stderr, "", 0)
 
 func init() {
-	flag.StringVar(&modelFilePath, "modelFilePath", "", "Path to file with model")
+	flag.StringVar(&modelFilePath, "path", "", "Path to file with model")
 	flag.Parse()
 }
 

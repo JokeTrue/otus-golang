@@ -3,10 +3,10 @@ package core
 type ValidatedStruct struct {
 	StructName       string
 	StructShortName  string
-	FieldsValidators []FieldValidator
+	FieldsValidators []fieldValidator
 }
 
-type FieldValidator struct {
+type fieldValidator struct {
 	StructShortName string
 	FieldName       string
 	FieldType       string

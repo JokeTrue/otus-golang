@@ -1,7 +1,9 @@
 package core
 
 import (
+	"bytes"
 	"fmt"
+	"go/format"
 	"strings"
 	"text/template"
 )
@@ -14,6 +16,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"errors"
 )
 
 type ValidationError struct {
@@ -24,7 +27,7 @@ type ValidationError struct {
 `
 	tmpl = `
 func ({{ .StructShortName }} {{ .StructName }}) Validate() ([]ValidationError, error) {
-	var errors []ValidationError
+	var errorsList []ValidationError
 	{{ range .FieldsValidators }}
 	{{- if (eq .FieldType "int")}}
 	{{ template "intTmpl" . }}
@@ -45,33 +48,33 @@ func ({{ .StructShortName }} {{ .StructName }}) Validate() ([]ValidationError, e
 	}
 	{{- end }}
 	{{ end }}
-	return errors, nil
+	return errorsList, nil
 }
 
 `
 	stringTmpl = `
 	{{- if (eq .Func "len")}}
 	if len({{.StructShortName}}.{{.FieldName}}) != {{.Args}} {
-	  	errors = append(errors, ValidationError{
+	  	errorsList = append(errorsList, ValidationError{
 			Field: "{{.FieldName}}",
-			Err: fmt.Errorf("expected length to be {{.Args}}"),
+			Err: fmt.Errorf("length expected to be {{.Args}}, not %d", len({{.StructShortName}}.{{.FieldName}})),
 	  	})
 	}{{- end }}
 	{{- if (eq .Func "regexp")}}
 	matched, err := regexp.MatchString("{{.Args}}", {{.StructShortName}}.{{.FieldName}})
 	if err != nil {
-	  	return errors, err
+	  	return errorsList, err
 	}
 	if !matched {
-	  	errors = append(errors, ValidationError{
+	  	errorsList = append(errorsList, ValidationError{
 			Field: "{{.FieldName}}",
-			Err: fmt.Errorf("didnt pass regexp"),
+			Err: errors.New("value didnt pass regex '{{.Args}}' with a value '{{.StructShortName}}.{{.FieldName}}'"),
 	  	})
 	}
 	{{- end }}
 	{{- if (eq .Func "in")}}
 	allowedValues := strings.Split("{{.Args}}", ",")
-	passed := false
+	var passed bool
 	for _, i := range allowedValues {
 	  	if string({{.StructShortName}}.{{.FieldName}}) == i {
 			passed = true
@@ -79,7 +82,7 @@ func ({{ .StructShortName }} {{ .StructName }}) Validate() ([]ValidationError, e
 	  	}
 	}
 	if !passed {
-	  	errors = append(errors, ValidationError{
+	  	errorsList = append(errorsList, ValidationError{
 			Field: "{{.FieldName}}",
 			Err: fmt.Errorf("didnt found value in allowed list"),
 	  	})
@@ -88,23 +91,23 @@ func ({{ .StructShortName }} {{ .StructName }}) Validate() ([]ValidationError, e
 	intTmpl = `
 	{{- if (eq .Func "min")}}
 	if {{ .StructShortName }}.{{.FieldName}} < {{.Args}} {
-		errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "{{.FieldName}}",
-			Err: fmt.Errorf("value is less then min"),
+			Err: fmt.Errorf("value is expected to be less then {{.Args}}, but it's %d", {{ .StructShortName }}.{{.FieldName}}),
 	  	})
 	}
 	{{- end }}
 	{{- if (eq .Func "max")}}
 	if {{ .StructShortName }}.{{.FieldName}} > {{.Args}} {
-		errors = append(errors, ValidationError{
+		errorsList = append(errorsList, ValidationError{
 			Field: "{{.FieldName}}",
-			Err: fmt.Errorf("value is more than max"),
+			Err: fmt.Errorf("value is expected to be more then {{.Args}}, but its %d", {{.StructShortName}}.{{.FieldName}}),
 	  	})
 	}
 	{{- end }}
 	{{- if (eq .Func "in")}}
 	allowedValues := []int{ {{.Args}} }
-	passed := false
+	var passed bool
 	for _, i := range allowedValues {
 		if {{ .StructShortName }}.{{.FieldName}} == i {
 			passed = true
@@ -112,7 +115,7 @@ func ({{ .StructShortName }} {{ .StructName }}) Validate() ([]ValidationError, e
 	  	}
 	}
 	if !passed {
-	  	errors = append(errors, ValidationError{
+	  	errorsList = append(errorsList, ValidationError{
 			Field: "{{.FieldName}}",
 			Err: fmt.Errorf("didnt found value in allowed list"),
 	  	})
@@ -120,26 +123,26 @@ func ({{ .StructShortName }} {{ .StructName }}) Validate() ([]ValidationError, e
 	{{- end }}`
 )
 
-func Generate(pkgName string, validatedStructs []ValidatedStruct) (string, error) {
-	var builder strings.Builder
+func Generate(pkgName string, validatedStructs []ValidatedStruct) ([]byte, error) {
+	var builder bytes.Buffer
 
 	t, err := template.New("structs_validation").Funcs(template.FuncMap{
-		"setupValidatorForSlice": func(field FieldValidator) FieldValidator {
+		"setupValidatorForSlice": func(field fieldValidator) fieldValidator {
 			field.FieldType = strings.TrimPrefix(field.FieldType, "[]")
 			field.FieldName += "[i]"
 			return field
 		},
 	}).Parse(tmpl)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	_, err = t.New("stringTmpl").Parse(stringTmpl)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	_, err = t.New("intTmpl").Parse(intTmpl)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	builder.WriteString(preHeader)
@@ -150,10 +153,10 @@ func Generate(pkgName string, validatedStructs []ValidatedStruct) (string, error
 		if len(v.FieldsValidators) > 0 {
 			err = t.ExecuteTemplate(&builder, "structs_validation", v)
 			if err != nil {
-				return "", err
+				return nil, err
 			}
 		}
 	}
-
-	return builder.String(), nil
+	code, err := format.Source(builder.Bytes())
+	return code, err
 }

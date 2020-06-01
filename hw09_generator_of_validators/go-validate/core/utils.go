@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Contains(s []string, e string) bool {
+func contains(s []string, e string) bool {
 	for _, a := range s {
 		if a == e {
 			return true
@@ -31,8 +31,9 @@ func cleanTag(rawTag string) string {
 	return rawTag
 }
 
-func GetUnderlyingType(file *ast.File, fieldType string) string {
-	if Contains([]string{"int", "string"}, fieldType) {
+func getUnderlyingType(file *ast.File, fieldType string) string {
+	simpleTypes := []string{"int", "string"}
+	if contains(simpleTypes, fieldType) {
 		return fieldType
 	}
 	for _, f := range file.Decls {
@@ -59,21 +60,21 @@ func GetUnderlyingType(file *ast.File, fieldType string) string {
 	return fieldType
 }
 
-func GetFieldType(file *ast.File, field *ast.Field) string {
+func getFieldType(file *ast.File, field *ast.Field) string {
 	switch v := field.Type.(type) {
 	case *ast.Ident:
-		return GetUnderlyingType(file, v.Name)
+		return getUnderlyingType(file, v.Name)
 	case *ast.ArrayType:
 		fieldType := v.Elt.(*ast.Ident).Name
-		return fmt.Sprintf("[]%s", GetUnderlyingType(file, fieldType))
+		return fmt.Sprintf("[]" + getUnderlyingType(file, fieldType))
 	}
 	return ""
 }
 
-func WriteTemplateCode(modelFilePath, content string) error {
-	baseName := path.Base(modelFilePath)
+func WriteTemplateCode(filePath string, content []byte) error {
+	baseName := path.Base(filePath)
 	filename := fmt.Sprintf("%s_validation_generated.go", strings.Replace(baseName, ".go", "", -1))
-	pathToWrite := strings.Replace(modelFilePath, baseName, filename, -1)
-	err := ioutil.WriteFile(pathToWrite, []byte(content), 0600)
+	pathToWrite := strings.Replace(filePath, baseName, filename, -1)
+	err := ioutil.WriteFile(pathToWrite, content, 0600)
 	return err
 }
