@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  server:
+    container_name: otus_calendar
+    build: ./
+    command: ./app
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+
+  database:
+    container_name: otus_psql
+    image: "postgres"
+    env_file:
+      - database.env
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+
+volumes:
+  database-data:

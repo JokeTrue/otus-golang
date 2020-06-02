@@ -1,0 +1,11 @@
+psql:
+  host: "localhost"
+  port: "5432"
+  user: "otus"
+  password: "otus"
+  name: "calendar"
+
+app:
+  host: "127.0.0.1"
+  port: "8000"
+  type: "local"
