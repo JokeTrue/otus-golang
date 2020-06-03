@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net"
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -61,5 +62,12 @@ func TestTelnetClient(t *testing.T) {
 		}()
 
 		wg.Wait()
+	})
+
+	t.Run("connect to wrong host", func(t *testing.T) {
+		d, err := time.ParseDuration("10s")
+		require.NoError(t, err)
+		client := NewTelnetClient("mailru.ru", d, os.Stdin, os.Stdout)
+		require.Error(t, client.Connect())
 	})
 }
