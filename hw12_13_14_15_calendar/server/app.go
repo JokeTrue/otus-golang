@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,6 +14,15 @@ import (
 	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/logging"
 
 	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/config"
+	eventGrpc "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/delivery/grpc"
+	eventGrpcChema "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/delivery/grpc/schema"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
+	eventHttp "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/delivery/http"
+
+	auth "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/auth/delivery/http"
+
 	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/usecase"
 
 	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/repository/localcache"
@@ -49,6 +59,9 @@ func (a *App) Run(host, port string) error {
 
 	// Register Endpoints
 	router.GET("/healthz", func(c *gin.Context) { c.JSON(200, gin.H{"status": "OK"}) })
+	api := router.Group("/api", auth.NewCheckUserMiddleware())
+	eventHttp.RegisterHTTPEndpoints(api, a.EventUC)
+
 	// Run HTTP Server
 	go func() {
 		if err := a.httpServer.ListenAndServe(); err != nil {
@@ -56,6 +69,24 @@ func (a *App) Run(host, port string) error {
 		}
 	}()
 	// --- HTTP API Setup End ---
+
+	// --- GRPC Setup Start ---
+	address := net.JoinHostPort(config.Conf.GRPC.Host, config.Conf.GRPC.Port)
+	grpcListener, err := net.Listen("tcp", address)
+	if err != nil {
+		logrus.Fatalf("failed to listen: %v", err)
+	}
+	grpcServer := grpc.NewServer()
+
+	// Register Schemas
+	eventGrpcChema.RegisterEventsRepositoryServer(grpcServer, eventGrpc.NewEventsServer(a.EventUC))
+
+	// Run GRPC Server
+	reflection.Register(grpcServer)
+	if err := grpcServer.Serve(grpcListener); err != nil {
+		logrus.Fatalf("GRPC: Failed to serve: %+v", err)
+	}
+	// --- GRPC Setup End ---
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, os.Interrupt)
