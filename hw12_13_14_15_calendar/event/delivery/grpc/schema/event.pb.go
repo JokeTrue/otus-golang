@@ -8,6 +8,9 @@ package grpc
 
 import (
 	context "context"
+	reflect "reflect"
+	sync "sync"
+
 	proto "github.com/golang/protobuf/proto"
 	any "github.com/golang/protobuf/ptypes/any"
 	duration "github.com/golang/protobuf/ptypes/duration"
@@ -16,8 +19,6 @@ import (
 	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -1022,7 +1023,7 @@ func (c *eventsRepositoryClient) GetEvents(ctx context.Context, in *GetEventsReq
 	return out, nil
 }
 
-// EventsRepositoryServer is the server API for EventsRepository service.
+// EventsRepositoryServer is the calendar API for EventsRepository service.
 type EventsRepositoryServer interface {
 	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	RetrieveEvent(context.Context, *RetrieveEventRequest) (*RetrieveEventResponse, error)

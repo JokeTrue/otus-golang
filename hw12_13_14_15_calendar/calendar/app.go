@@ -1,4 +1,4 @@
-package server
+package calendar
 
 import (
 	"context"
@@ -8,12 +8,14 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/database"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/config/calendar"
+
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/database"
+
 	"github.com/sirupsen/logrus"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/logging"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/logging"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/config"
 	eventGrpc "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/delivery/grpc"
 	eventGrpcChema "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/delivery/grpc/schema"
 	"google.golang.org/grpc"
@@ -71,7 +73,7 @@ func (a *App) Run(host, port string) error {
 	// --- HTTP API Setup End ---
 
 	// --- GRPC Setup Start ---
-	address := net.JoinHostPort(config.Conf.GRPC.Host, config.Conf.GRPC.Port)
+	address := net.JoinHostPort(calendar.Conf.GRPC.Host, calendar.Conf.GRPC.Port)
 	grpcListener, err := net.Listen("tcp", address)
 	if err != nil {
 		logrus.Fatalf("failed to listen: %v", err)
@@ -99,7 +101,7 @@ func (a *App) Run(host, port string) error {
 }
 
 func getEventRepo() (eventRepo event.Repository) {
-	switch config.Conf.App.Type {
+	switch calendar.Conf.App.Type {
 	case "local":
 		eventRepo = localcache.NewEventLocalStorage()
 	case "psql":

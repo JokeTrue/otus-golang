@@ -3,6 +3,7 @@ module github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar
 go 1.14
 
 require (
+	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect
@@ -19,6 +20,7 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
+	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.6.1
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.24.0

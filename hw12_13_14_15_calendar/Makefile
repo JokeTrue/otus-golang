@@ -1,8 +1,10 @@
 build:
-	CGO_ENABLED=0 GOOS=linux go build -o ./.bin/calendar ./cmd/calendar/main.go
+	go build -o ./bin/calendar ./cmd/calendar/main.go
+	go build -o ./bin/calendar_sender ./cmd/calendar_sender/main.go
+	go build -o ./bin/calendar_scheduler ./cmd/calendar_scheduler/main.go
 
 install-deps:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint &&
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint
 	apt install -y protobuf-compiler
 
 test:
