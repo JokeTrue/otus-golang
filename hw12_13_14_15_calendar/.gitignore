@@ -5,6 +5,6 @@
 *.out
 
 # Binaries
-bin/
+src/bin/
 
 *.log
