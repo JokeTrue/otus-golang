@@ -8,7 +8,6 @@ import (
 	reflect "reflect"
 	time "time"
 
-	event "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event"
 	models "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/models"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
@@ -67,18 +66,33 @@ func (mr *MockUseCaseMockRecorder) DeleteEvent(arg0, arg1 interface{}) *gomock.C
 }
 
 // GetEvents mocks base method
-func (m *MockUseCase) GetEvents(arg0 int64, arg1 event.Interval, arg2 string) ([]*models.Event, error) {
+func (m *MockUseCase) GetEvents(arg0, arg1 time.Time) ([]*models.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetEvents", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetEvents", arg0, arg1)
 	ret0, _ := ret[0].([]*models.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetEvents indicates an expected call of GetEvents
-func (mr *MockUseCaseMockRecorder) GetEvents(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockUseCaseMockRecorder) GetEvents(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEvents", reflect.TypeOf((*MockUseCase)(nil).GetEvents), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEvents", reflect.TypeOf((*MockUseCase)(nil).GetEvents), arg0, arg1)
+}
+
+// GetUserEvents mocks base method
+func (m *MockUseCase) GetUserEvents(arg0 int64, arg1 models.Interval, arg2 string) ([]*models.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserEvents", arg0, arg1, arg2)
+	ret0, _ := ret[0].([]*models.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserEvents indicates an expected call of GetUserEvents
+func (mr *MockUseCaseMockRecorder) GetUserEvents(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserEvents", reflect.TypeOf((*MockUseCase)(nil).GetUserEvents), arg0, arg1, arg2)
 }
 
 // RetrieveEvent mocks base method

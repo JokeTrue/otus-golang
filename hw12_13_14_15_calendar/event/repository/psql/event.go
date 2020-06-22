@@ -77,13 +77,25 @@ func (e EventRepository) DeleteEvent(userID int64, eventID uuid.UUID) error {
 	return e.db.QueryRowx(sqlStatement, userID, eventID).Err()
 }
 
-func (e EventRepository) GetEvents(userID int64, startDate time.Time, endDate time.Time) ([]*models.Event, error) {
+func (e EventRepository) GetUserEvents(userID int64, startDate time.Time, endDate time.Time) ([]*models.Event, error) {
 	events := make([]*models.Event, 0)
 	sqlStatement := `SELECT * FROM events WHERE user_id = $1 AND start_date BETWEEN $2 AND $3`
 	err := e.db.Select(
 		&events,
 		sqlStatement,
 		userID,
+		startDate.Format("2006-01-02"),
+		endDate.Format("2006-01-02"),
+	)
+	return events, err
+}
+
+func (e EventRepository) GetEvents(startDate, endDate time.Time) ([]*models.Event, error) {
+	events := make([]*models.Event, 0)
+	sqlStatement := `SELECT * FROM events WHERE start_date BETWEEN $1 AND $2`
+	err := e.db.Select(
+		&events,
+		sqlStatement,
 		startDate.Format("2006-01-02"),
 		endDate.Format("2006-01-02"),
 	)

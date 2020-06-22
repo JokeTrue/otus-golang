@@ -143,10 +143,10 @@ func (e EventsServer) DeleteEvent(ctx context.Context, request *grpc2.DeleteEven
 	return res, nil
 }
 
-func (e EventsServer) GetEvents(ctx context.Context, request *grpc2.GetEventsRequest) (*grpc2.GetEventsResponse, error) {
+func (e EventsServer) GetUserEvents(ctx context.Context, request *grpc2.GetEventsRequest) (*grpc2.GetEventsResponse, error) {
 	res := &grpc2.GetEventsResponse{}
 
-	evs, err := e.useCase.GetEvents(request.UserID, event.Interval(request.Interval), request.StartDate)
+	evs, err := e.useCase.GetUserEvents(request.UserID, models.Interval(request.Interval), request.StartDate)
 	if err != nil {
 		logrus.Error(errors.Wrap(err, "failed to retrieve list of events"))
 		res.Err = &grpc2.Error{

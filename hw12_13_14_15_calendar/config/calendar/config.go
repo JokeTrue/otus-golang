@@ -9,24 +9,24 @@ import (
 
 type config struct {
 	Database struct {
-		Host     string `yaml:"host"`
-		Port     string `yaml:"port"`
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-		Name     string `yaml:"name"`
+		Host     string
+		Port     string
+		User     string
+		Password string
+		Name     string
 	}
 	App struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
-		Type string `yaml:"type"`
+		Host string
+		Port string
+		Type string
 	}
 	GRPC struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
+		Host string
+		Port string
 	}
 	Logging struct {
-		Path     string `yaml:"path"`
-		LogLevel string `yaml:"loglevel"`
+		Path     string
+		LogLevel string
 	}
 }
 

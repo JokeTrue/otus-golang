@@ -8,6 +8,9 @@ package grpc
 
 import (
 	context "context"
+	reflect "reflect"
+	sync "sync"
+
 	proto "github.com/golang/protobuf/proto"
 	any "github.com/golang/protobuf/ptypes/any"
 	duration "github.com/golang/protobuf/ptypes/duration"
@@ -16,8 +19,6 @@ import (
 	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -639,7 +640,7 @@ func (*GetEventsResponse) Descriptor() ([]byte, []int) {
 	return file_event_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *GetEventsResponse) GetEvents() []*Event {
+func (x *GetEventsResponse) GetUserEvents() []*Event {
 	if x != nil {
 		return x.Events
 	}
@@ -790,12 +791,12 @@ var file_event_proto_depIdxs = []int32{
 	4,  // 11: api.EventsRepository.RetrieveEvent:input_type -> api.RetrieveEventRequest
 	6,  // 12: api.EventsRepository.UpdateEvent:input_type -> api.UpdateEventRequest
 	7,  // 13: api.EventsRepository.DeleteEvent:input_type -> api.DeleteEventRequest
-	8,  // 14: api.EventsRepository.GetEvents:input_type -> api.GetEventsRequest
+	8,  // 14: api.EventsRepository.GetUserEvents:input_type -> api.GetEventsRequest
 	3,  // 15: api.EventsRepository.CreateEvent:output_type -> api.CreateEventResponse
 	5,  // 16: api.EventsRepository.RetrieveEvent:output_type -> api.RetrieveEventResponse
 	1,  // 17: api.EventsRepository.UpdateEvent:output_type -> api.Error
 	1,  // 18: api.EventsRepository.DeleteEvent:output_type -> api.Error
-	9,  // 19: api.EventsRepository.GetEvents:output_type -> api.GetEventsResponse
+	9,  // 19: api.EventsRepository.GetUserEvents:output_type -> api.GetEventsResponse
 	15, // [15:20] is the sub-list for method output_type
 	10, // [10:15] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name
@@ -966,7 +967,7 @@ type EventsRepositoryClient interface {
 	RetrieveEvent(ctx context.Context, in *RetrieveEventRequest, opts ...grpc.CallOption) (*RetrieveEventResponse, error)
 	UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*Error, error)
 	DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*Error, error)
-	GetEvents(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error)
+	GetUserEvents(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error)
 }
 
 type eventsRepositoryClient struct {
@@ -1013,22 +1014,22 @@ func (c *eventsRepositoryClient) DeleteEvent(ctx context.Context, in *DeleteEven
 	return out, nil
 }
 
-func (c *eventsRepositoryClient) GetEvents(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error) {
+func (c *eventsRepositoryClient) GetUserEvents(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error) {
 	out := new(GetEventsResponse)
-	err := c.cc.Invoke(ctx, "/api.EventsRepository/GetEvents", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.EventsRepository/GetUserEvents", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// EventsRepositoryServer is the server API for EventsRepository service.
+// EventsRepositoryServer is the calendar API for EventsRepository service.
 type EventsRepositoryServer interface {
 	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	RetrieveEvent(context.Context, *RetrieveEventRequest) (*RetrieveEventResponse, error)
 	UpdateEvent(context.Context, *UpdateEventRequest) (*Error, error)
 	DeleteEvent(context.Context, *DeleteEventRequest) (*Error, error)
-	GetEvents(context.Context, *GetEventsRequest) (*GetEventsResponse, error)
+	GetUserEvents(context.Context, *GetEventsRequest) (*GetEventsResponse, error)
 }
 
 // UnimplementedEventsRepositoryServer can be embedded to have forward compatible implementations.
@@ -1047,8 +1048,8 @@ func (*UnimplementedEventsRepositoryServer) UpdateEvent(context.Context, *Update
 func (*UnimplementedEventsRepositoryServer) DeleteEvent(context.Context, *DeleteEventRequest) (*Error, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteEvent not implemented")
 }
-func (*UnimplementedEventsRepositoryServer) GetEvents(context.Context, *GetEventsRequest) (*GetEventsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetEvents not implemented")
+func (*UnimplementedEventsRepositoryServer) GetUserEvents(context.Context, *GetEventsRequest) (*GetEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserEvents not implemented")
 }
 
 func RegisterEventsRepositoryServer(s *grpc.Server, srv EventsRepositoryServer) {
@@ -1133,14 +1134,14 @@ func _EventsRepository_GetEvents_Handler(srv interface{}, ctx context.Context, d
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EventsRepositoryServer).GetEvents(ctx, in)
+		return srv.(EventsRepositoryServer).GetUserEvents(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.EventsRepository/GetEvents",
+		FullMethod: "/api.EventsRepository/GetUserEvents",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventsRepositoryServer).GetEvents(ctx, req.(*GetEventsRequest))
+		return srv.(EventsRepositoryServer).GetUserEvents(ctx, req.(*GetEventsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1166,7 +1167,7 @@ var _EventsRepository_serviceDesc = grpc.ServiceDesc{
 			Handler:    _EventsRepository_DeleteEvent_Handler,
 		},
 		{
-			MethodName: "GetEvents",
+			MethodName: "GetUserEvents",
 			Handler:    _EventsRepository_GetEvents_Handler,
 		},
 	},

@@ -11,6 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var ErrNoUserHeader = errors.New("no X-USER-ID header")
+
 func getEventID(c *gin.Context) (eventID uuid.UUID, err error) {
 	rawEventID := c.Param("event_id")
 	eventID, err = uuid.Parse(rawEventID)
@@ -25,7 +27,7 @@ func getUserID(c *gin.Context) (int64, error) {
 	rawUserID, ok := c.Get(auth.UserKey)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return -1, errors.New("no X-USER-ID header")
+		return -1, ErrNoUserHeader
 	}
 	userID, err := strconv.ParseInt(rawUserID.(string), 10, 64)
 	return userID, err

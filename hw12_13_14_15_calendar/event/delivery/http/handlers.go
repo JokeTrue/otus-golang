@@ -146,7 +146,7 @@ func (h *Handler) GetList(c *gin.Context) {
 		return
 	}
 
-	evs, err := h.useCase.GetEvents(userID, event.Interval(q.Interval), q.StartDate)
+	evs, err := h.useCase.GetUserEvents(userID, models.Interval(q.Interval), q.StartDate)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

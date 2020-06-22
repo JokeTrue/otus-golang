@@ -4,7 +4,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event"
 	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/models"
 	"github.com/google/uuid"
 )
@@ -33,7 +32,7 @@ func (e EventLocalStorage) RetrieveEvent(userID int64, eventID uuid.UUID) (*mode
 	if ok && ev.UserID == userID {
 		return ev, nil
 	}
-	return nil, event.ErrEventNotFound
+	return nil, ErrEventNotFound
 }
 
 func (e EventLocalStorage) UpdateEvent(userID int64, ev *models.Event, eventID uuid.UUID) error {
@@ -46,7 +45,7 @@ func (e EventLocalStorage) UpdateEvent(userID int64, ev *models.Event, eventID u
 		return nil
 	}
 
-	return event.ErrEventNotFound
+	return ErrEventNotFound
 }
 
 func (e EventLocalStorage) DeleteEvent(userID int64, eventID uuid.UUID) error {
@@ -59,15 +58,29 @@ func (e EventLocalStorage) DeleteEvent(userID int64, eventID uuid.UUID) error {
 		return nil
 	}
 
-	return event.ErrEventNotFound
+	return ErrEventNotFound
 }
 
-func (e EventLocalStorage) GetEvents(userID int64, startDate time.Time, endDate time.Time) ([]*models.Event, error) {
+func (e EventLocalStorage) GetUserEvents(userID int64, startDate time.Time, endDate time.Time) ([]*models.Event, error) {
 	events := make([]*models.Event, 0)
 
 	e.mutex.Lock()
 	for _, ev := range e.events {
 		if ev.UserID == userID && (ev.StartDate.After(startDate) || ev.StartDate.Equal(startDate)) && ev.StartDate.Before(endDate) {
+			events = append(events, ev)
+		}
+	}
+	e.mutex.Unlock()
+
+	return events, nil
+}
+
+func (e EventLocalStorage) GetEvents(startDate, endDate time.Time) ([]*models.Event, error) {
+	events := make([]*models.Event, 0)
+
+	e.mutex.Lock()
+	for _, ev := range e.events {
+		if (ev.StartDate.After(startDate) || ev.StartDate.Equal(startDate)) && ev.StartDate.Before(endDate) {
 			events = append(events, ev)
 		}
 	}
