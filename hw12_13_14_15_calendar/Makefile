@@ -1,10 +1,14 @@
 build:
-	go build ./... -o calendar
+	CGO_ENABLED=0 GOOS=linux go build -o ./.bin/calendar ./cmd/calendar/main.go
+
+install-deps:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint
 
 test:
-	go test -race ./...
+	go test -race -v ./...
 
-lint:
-	golangci-lint run ./...
+lint: install-deps
+	golangci-lint --config=./.golangcilint.yaml run ./...
 
 .PHONY: build
+
