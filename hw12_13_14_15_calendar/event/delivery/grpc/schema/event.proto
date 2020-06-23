@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package api;
+option go_package = "grpc";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/any.proto";
+
+message Event {
+  string ID = 1; // UUID
+  int64 UserID = 2;
+  string Title = 3;
+  string Description = 4;
+  string StartDate = 5;
+  string EndDate = 6;
+  google.protobuf.Duration NotifyInterval = 7;
+}
+
+service EventsRepository {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {}
+  rpc RetrieveEvent(RetrieveEventRequest) returns (RetrieveEventResponse) {}
+  rpc UpdateEvent(UpdateEventRequest) returns (Error) {}
+  rpc DeleteEvent(DeleteEventRequest) returns (Error) {}
+  rpc GetEvents(GetEventsRequest) returns (GetEventsResponse) {}
+}
+
+message Error {
+  uint32 code = 1;
+  string message = 2;
+  repeated google.protobuf.Any details = 3;
+}
+
+message CreateEventRequest {
+  Event event = 1;
+  int64 UserID = 2;
+}
+
+message CreateEventResponse {
+  string ID = 1;
+  Error err = 2;
+}
+
+message RetrieveEventRequest {
+  int64 UserID = 1;
+  string ID = 2;
+}
+
+message RetrieveEventResponse {
+  Event event = 1;
+  Error err = 2;
+}
+
+message UpdateEventRequest {
+  int64 UserID = 1;
+  Event event = 2;
+  string ID = 3;
+  Error err = 4;
+}
+
+message DeleteEventRequest {
+  int64 UserID = 1;
+  string ID = 2;
+}
+
+message GetEventsRequest {
+  int64 UserID = 1;
+  string StartDate = 2;
+  int32 Interval = 3;
+}
+
+message GetEventsResponse {
+  repeated Event events = 1;
+  Error err = 2;
+}
