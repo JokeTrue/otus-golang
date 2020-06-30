@@ -8,7 +8,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/config"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/config/calendar"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -17,12 +17,12 @@ import (
 var timeFormat = "02/Jan/2006:15:04:05 -0700"
 
 func init() {
-	level, err := logrus.ParseLevel(config.Conf.Logging.LogLevel)
+	level, err := logrus.ParseLevel(calendar.Conf.Logging.LogLevel)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	logPath := path.Join(config.Conf.Logging.Path, "server.log")
+	logPath := path.Join(calendar.Conf.Logging.Path, "calendar.log")
 	logFile, err := os.OpenFile(logPath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
 		logrus.Fatal(err)

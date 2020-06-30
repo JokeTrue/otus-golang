@@ -3,10 +3,11 @@ package database
 import (
 	"fmt"
 
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/config/calendar"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/config"
 	_ "github.com/lib/pq" // Init Database Driver
 )
 
@@ -27,11 +28,11 @@ var (
 
 func GetDatabase() *sqlx.DB {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		config.Conf.Database.Host,
-		config.Conf.Database.Port,
-		config.Conf.Database.User,
-		config.Conf.Database.Password,
-		config.Conf.Database.Name,
+		calendar.Conf.Database.Host,
+		calendar.Conf.Database.Port,
+		calendar.Conf.Database.User,
+		calendar.Conf.Database.Password,
+		calendar.Conf.Database.Name,
 	)
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {

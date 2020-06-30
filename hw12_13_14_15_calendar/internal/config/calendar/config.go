@@ -1,4 +1,4 @@
-package config
+package calendar
 
 import (
 	"github.com/sirupsen/logrus"
@@ -33,7 +33,7 @@ type config struct {
 var Conf *config
 
 func init() {
-	configPath := pflag.String("config", "", "path to config")
+	configPath := pflag.String("config", "", "path to calendar config")
 	pflag.Parse()
 
 	viper.SetConfigFile(*configPath)

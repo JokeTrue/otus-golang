@@ -9,7 +9,9 @@ import (
 
 type UseCase interface {
 	CreateEvent(
-		userID int64, title, description string,
+		userID int64,
+		title string,
+		description string,
 		startDate, endDate string,
 		notifyInterval time.Duration,
 	) (uuid.UUID, error)
