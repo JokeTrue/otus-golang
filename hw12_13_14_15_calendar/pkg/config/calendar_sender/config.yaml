@@ -1,0 +1,4 @@
+url: "amqp://guest:guest@rabbit/"
+exchange: ""
+queuename: "calendar"
+qos: 1

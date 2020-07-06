@@ -1,0 +1,64 @@
+version: "3.7"
+
+services:
+  calendar:
+    container_name: calendar
+    build:
+      context: ..
+      dockerfile: ./docker/calendar/Dockerfile
+    command: sh -c "sleep 10 && ./bin/calendar --config /config/config.yaml"
+    volumes:
+      - "../pkg/config/calendar:/config"
+    ports:
+      - "8080:80"
+      - "50051:50051"
+    depends_on:
+      - postgres
+
+  calendar_scheduler:
+    container_name: calendar_scheduler
+    build:
+      context: ..
+      dockerfile: ./docker/calendar_scheduler/Dockerfile
+    command: sh -c "sleep 10 && ./bin/calendar_scheduler --config /config/config.yaml"
+    volumes:
+      - "../pkg/config/calendar_scheduler:/config"
+    depends_on:
+      - postgres
+      - rabbit
+
+  calendar_sender:
+    container_name: calendar_sender
+    build:
+      context: ..
+      dockerfile: ./docker/calendar_sender/Dockerfile
+    restart: unless-stopped
+    command: sh -c "sleep 10 && ./bin/calendar_sender --config /config/config.yaml"
+    volumes:
+      - "../pkg/config/calendar_sender:/config"
+    depends_on:
+      - rabbit
+
+  postgres:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: otus
+      POSTGRES_PASSWORD: otus
+      POSTGRES_DB: calendar
+    ports:
+      - "55432:5432"
+    volumes:
+      - ./../pkg/database/migrations:/docker-entrypoint-initdb.d
+
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: calendar_rabbit
+    ports:
+      - "56721:5672"
+      - "15677:15672"
+    environment:
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: guest
+
+volumes:
+  db_data:

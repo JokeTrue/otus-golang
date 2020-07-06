@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  calendar:
+    container_name: calendar
+    build:
+      context: ..
+      dockerfile: ./docker/calendar/Dockerfile
+    command: sh -c "sleep 10 && ./bin/calendar --config /config/config.yaml"
+    volumes:
+      - "../pkg/config/calendar:/config"
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: otus
+      POSTGRES_PASSWORD: otus
+      POSTGRES_DB: calendar
+    ports:
+      - "55432:5432"
+    volumes:
+      - ./../pkg/database/migrations:/docker-entrypoint-initdb.d
+
+  integration-tests:
+    image: golang:1.14
+    volumes:
+      - ./../:/app/
+    working_dir: /app
+    command: sh -c 'go mod download && go test -v ./tests/...'
+    depends_on:
+      - calendar
+
+volumes:
+  db_data:

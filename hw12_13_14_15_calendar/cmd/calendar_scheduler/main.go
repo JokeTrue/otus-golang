@@ -1,9 +1,9 @@
 package main
 
 import (
-	scheduler "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/calendar_scheduler"
-	calendarscheduler "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/config/calendar_scheduler"
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/rabbitmq"
+	scheduler "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/pkg/calendar_scheduler"
+	calendarscheduler "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/pkg/config/calendar_scheduler"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/pkg/rabbitmq"
 	"github.com/sirupsen/logrus"
 )
 

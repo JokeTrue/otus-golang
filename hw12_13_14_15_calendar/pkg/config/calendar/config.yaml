@@ -1,0 +1,19 @@
+database:
+  host:  "postgres"
+  port: "5432"
+  user: "otus"
+  password: "otus"
+  name: "calendar"
+
+app:
+  host: "0.0.0.0"
+  port: "80"
+  type: "local"
+
+grpc:
+  host: "0.0.0.0"
+  port: "50051"
+
+logging:
+  path: "."
+  loglevel: "debug"
