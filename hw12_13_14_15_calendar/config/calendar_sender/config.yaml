@@ -1,4 +1,4 @@
-url: ""
+url: "amqp://guest:guest@127.0.0.1:5672"
 exchange: ""
-queue_name: ""
+queuename: "calendar"
 qos: 1

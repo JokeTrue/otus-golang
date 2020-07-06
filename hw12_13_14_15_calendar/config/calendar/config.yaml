@@ -1,5 +1,5 @@
 database:
-  host: "localhost"
+  host:  "127.0.0.1"
   port: "5432"
   user: "otus"
   password: "otus"
@@ -7,7 +7,7 @@ database:
 
 app:
   host: "127.0.0.1"
-  port: "8000"
+  port: "7070"
   type: "local"
 
 grpc:

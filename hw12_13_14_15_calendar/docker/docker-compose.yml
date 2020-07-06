@@ -1,0 +1,79 @@
+version: "3.3"
+
+services:
+  calendar:
+    container_name: calendar
+    build:
+      context: ..
+      dockerfile: ./docker/calendar/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "50051:50051"
+    command: --config /config/calendar/config.yaml
+    volumes:
+      - "../config:/config"
+    depends_on:
+      - postgres
+
+  calendar_scheduler:
+    container_name: calendar_scheduler
+    build:
+      context: ..
+      dockerfile: ./docker/calendar_scheduler/Dockerfile
+    restart: unless-stopped
+    command: --config /config/calendar_scheduler/config.yaml
+    volumes:
+      - "../config:/config"
+    depends_on:
+      - rabbit
+
+  calendar_sender:
+    container_name: calendar_sender
+    build:
+      context: ..
+      dockerfile: ./docker/calendar_sender/Dockerfile
+    restart: unless-stopped
+    command: --config /config/calendar_sender/config.yaml
+    volumes:
+      - "../config:/config"
+    depends_on:
+      - rabbit
+
+  postgres:
+    container_name: calendar_postgres
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: otus
+      POSTGRES_PASSWORD: otus
+      POSTGRES_DB: calendar
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  rabbit:
+    container_name: calendar_rabbit
+    image: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+
+  goose:
+    container_name: calendar_goose
+    build:
+      context: ..
+      dockerfile: ./docker/goose/Dockerfile
+    restart: on-failure
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "host=postgres port=5432 user=otus password=otus dbname=calendar sslmode=disable"
+    command: -dir /migrations up
+    volumes:
+      - "../database/migrations:/migrations"
+    depends_on:
+      - postgres
+
+volumes:
+  db_data:

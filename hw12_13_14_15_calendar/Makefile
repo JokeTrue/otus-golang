@@ -22,5 +22,8 @@ lint:
 generate:
 	protoc --proto_path=./event/delivery/grpc/schema --go_opt=paths=source_relative --go_out=plugins=grpc:./event/delivery/grpc/schema/ event.proto
 
+up:
+	docker-compose -f ./docker/docker-compose.yml up
 
-
+down:
+	docker-compose -f ./docker/docker-compose.yml down
