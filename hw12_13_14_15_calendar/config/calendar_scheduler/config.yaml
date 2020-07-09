@@ -1,0 +1,7 @@
+url: ""
+exchange: ""
+queue_name: ""
+qos: 1
+
+app:
+  type: "local"

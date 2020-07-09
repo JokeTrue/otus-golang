@@ -8,13 +8,17 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/config/calendar"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/usecase"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/database"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/database"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/utils"
 
+	"github.com/jmoiron/sqlx"
+
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/config/calendar"
 	"github.com/sirupsen/logrus"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/logging"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/logging"
 
 	eventGrpc "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/delivery/grpc"
 	eventGrpcChema "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/delivery/grpc/schema"
@@ -25,12 +29,6 @@ import (
 
 	auth "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/auth/delivery/http"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/usecase"
-
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/repository/localcache"
-
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event/repository/psql"
-
 	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event"
 	"github.com/gin-gonic/gin"
 )
@@ -39,20 +37,32 @@ type App struct {
 	httpServer *http.Server
 
 	EventUC event.UseCase
+
+	DB *sqlx.DB
 }
 
 func NewApp() *App {
-	return &App{EventUC: usecase.NewEventUseCase(getEventRepo())}
+	dsn := utils.GetDSN(
+		calendar.Conf.Database.Host,
+		calendar.Conf.Database.Port,
+		calendar.Conf.Database.User,
+		calendar.Conf.Database.Password,
+		calendar.Conf.Database.Name,
+	)
+	db := database.GetDatabase(dsn)
+	app := &App{DB: db}
+	app.EventUC = usecase.NewEventUseCase(event.GetEventRepository(calendar.Conf.App.Type, app.DB))
+	return app
 }
 
-func (a *App) Run(host, port string) error {
+func (a *App) Run() error {
 	// --- HTTP API Setup Start ---
 	router := gin.New()
 	router.Use(logging.GinLogger(logrus.New()), gin.Recovery())
 
 	// HTTP Server
 	a.httpServer = &http.Server{
-		Addr:           host + ":" + port,
+		Addr:           calendar.Conf.App.Host + ":" + calendar.Conf.App.Port,
 		Handler:        router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
@@ -82,12 +92,14 @@ func (a *App) Run(host, port string) error {
 
 	// Register Schemas
 	eventGrpcChema.RegisterEventsRepositoryServer(grpcServer, eventGrpc.NewEventsServer(a.EventUC))
+	reflection.Register(grpcServer)
 
 	// Run GRPC Server
-	reflection.Register(grpcServer)
-	if err := grpcServer.Serve(grpcListener); err != nil {
-		logrus.Fatalf("GRPC: Failed to serve: %+v", err)
-	}
+	go func() {
+		if err := grpcServer.Serve(grpcListener); err != nil {
+			logrus.Fatalf("GRPC: Failed to serve: %+v", err)
+		}
+	}()
 	// --- GRPC Setup End ---
 
 	quit := make(chan os.Signal, 1)
@@ -97,15 +109,6 @@ func (a *App) Run(host, port string) error {
 	ctx, shutdown := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdown()
 
+	grpcServer.GracefulStop()
 	return a.httpServer.Shutdown(ctx)
-}
-
-func getEventRepo() (eventRepo event.Repository) {
-	switch calendar.Conf.App.Type {
-	case "local":
-		eventRepo = localcache.NewEventLocalStorage()
-	case "psql":
-		eventRepo = psql.NewEventRepository(database.GetDatabase())
-	}
-	return
 }

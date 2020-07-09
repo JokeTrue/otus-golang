@@ -3,8 +3,31 @@ package models
 import (
 	"time"
 
+	"github.com/jinzhu/now"
+
 	"github.com/google/uuid"
 )
+
+type Interval int
+
+const (
+	DayInterval Interval = iota + 1
+	WeekInterval
+	MonthInterval
+)
+
+func (i Interval) GetIntervalEnd(startDate time.Time) time.Time {
+	var endDate time.Time
+	switch i {
+	case DayInterval:
+		endDate = startDate.AddDate(0, 0, 1)
+	case WeekInterval:
+		endDate = now.With(startDate).EndOfWeek()
+	case MonthInterval:
+		endDate = now.With(startDate).EndOfMonth()
+	}
+	return endDate
+}
 
 type Event struct {
 	ID             uuid.UUID `json:"id" db:"id"`

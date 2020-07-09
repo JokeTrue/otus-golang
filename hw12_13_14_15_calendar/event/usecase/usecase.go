@@ -37,11 +37,15 @@ func (e EventUseCase) UpdateEvent(userID int64, ev *models.Event, eventID uuid.U
 	return e.eventRepo.UpdateEvent(userID, ev, eventID)
 }
 
-func (e EventUseCase) GetEvents(userID int64, interval event.Interval, startDate string) ([]*models.Event, error) {
+func (e EventUseCase) GetUserEvents(userID int64, interval models.Interval, startDate string) ([]*models.Event, error) {
 	parsedStartDate, err := time.Parse(models.DefaultDateLayout, startDate)
 	if err != nil {
 		return nil, err
 	}
 	endDate := interval.GetIntervalEnd(parsedStartDate)
-	return e.eventRepo.GetEvents(userID, parsedStartDate, endDate)
+	return e.eventRepo.GetUserEvents(userID, parsedStartDate, endDate)
+}
+
+func (e EventUseCase) GetEvents(startDate, endDate time.Time) ([]*models.Event, error) {
+	return e.eventRepo.GetEvents(startDate, endDate)
 }

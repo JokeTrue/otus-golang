@@ -75,7 +75,6 @@ func TestHealthz(t *testing.T) {
 
 func TestGetUserIdError(t *testing.T) {
 	s := NewTestSuite(t)
-	defer s.ctrl.Finish()
 
 	req, _ := http.NewRequest("GET", "/api/events/event/123", nil)
 	s.router.ServeHTTP(s.recorder, req)
@@ -86,7 +85,6 @@ func TestGetUserIdError(t *testing.T) {
 
 func TestGetUserIdOK(t *testing.T) {
 	s := NewTestSuite(t)
-	defer s.ctrl.Finish()
 
 	s.mockedUseCase.
 		EXPECT().
@@ -103,7 +101,6 @@ func TestGetUserIdOK(t *testing.T) {
 
 func TestGetEventIdError(t *testing.T) {
 	s := NewTestSuite(t)
-	defer s.ctrl.Finish()
 
 	req, _ := http.NewRequest("GET", "/api/events/event/123", nil)
 	req.Header.Set("X-USER-ID", "1")
@@ -115,7 +112,6 @@ func TestGetEventIdError(t *testing.T) {
 
 func TestGetEventIdOK(t *testing.T) {
 	s := NewTestSuite(t)
-	defer s.ctrl.Finish()
 
 	s.mockedUseCase.
 		EXPECT().

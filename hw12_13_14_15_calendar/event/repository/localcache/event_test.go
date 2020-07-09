@@ -6,8 +6,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/event"
-
 	"github.com/stretchr/testify/assert"
 
 	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/models"
@@ -39,7 +37,7 @@ func TestDeleteEvent(t *testing.T) {
 	assert.NoError(t, err)
 
 	err = s.DeleteEvent(1, ev1.ID)
-	assert.Equal(t, err, event.ErrEventNotFound)
+	assert.Equal(t, err, ErrEventNotFound)
 }
 
 func TestCreateEvent(t *testing.T) {
@@ -56,7 +54,7 @@ func TestRetrieveEvent(t *testing.T) {
 	s := NewEventLocalStorage()
 
 	retrieved, err := s.RetrieveEvent(1, uuid.New())
-	assert.Equal(t, event.ErrEventNotFound, err)
+	assert.Equal(t, ErrEventNotFound, err)
 
 	id, err := s.CreateEvent(ev1)
 	assert.NoError(t, err)
@@ -70,12 +68,12 @@ func TestGetEvents(t *testing.T) {
 
 	cases := []struct {
 		name               string
-		interval           event.Interval
+		interval           models.Interval
 		startDate, endDate string
 	}{
-		{name: "day interval", interval: event.DayInterval, startDate: "2020-06-01", endDate: "2020-06-02"},
-		{name: "week interval", interval: event.WeekInterval, startDate: "2020-06-05", endDate: "2020-06-06"},
-		{name: "month interval", interval: event.MonthInterval, startDate: "2020-06-25", endDate: "2020-06-28"},
+		{name: "day interval", interval: models.DayInterval, startDate: "2020-06-01", endDate: "2020-06-02"},
+		{name: "week interval", interval: models.WeekInterval, startDate: "2020-06-05", endDate: "2020-06-06"},
+		{name: "month interval", interval: models.MonthInterval, startDate: "2020-06-25", endDate: "2020-06-28"},
 	}
 
 	// Create Events
@@ -98,7 +96,7 @@ func TestGetEvents(t *testing.T) {
 		endDate, err := time.Parse("2006-01-02", c.endDate)
 		assert.NoError(t, err)
 
-		list, err := s.GetEvents(1, startDate, endDate)
+		list, err := s.GetUserEvents(1, startDate, endDate)
 		assert.NoError(t, err)
 		require.Len(t, list, i+1)
 	}

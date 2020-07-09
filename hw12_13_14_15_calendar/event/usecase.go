@@ -18,5 +18,6 @@ type UseCase interface {
 	RetrieveEvent(userID int64, eventID uuid.UUID) (*models.Event, error)
 	UpdateEvent(userID int64, ev *models.Event, eventID uuid.UUID) error
 	DeleteEvent(userID int64, eventID uuid.UUID) error
-	GetEvents(userID int64, interval Interval, startDate string) ([]*models.Event, error)
+	GetUserEvents(userID int64, interval models.Interval, startDate string) ([]*models.Event, error)
+	GetEvents(startDate, endDate time.Time) ([]*models.Event, error)
 }

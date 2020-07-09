@@ -21,7 +21,7 @@ service EventsRepository {
   rpc RetrieveEvent(RetrieveEventRequest) returns (RetrieveEventResponse) {}
   rpc UpdateEvent(UpdateEventRequest) returns (Error) {}
   rpc DeleteEvent(DeleteEventRequest) returns (Error) {}
-  rpc GetEvents(GetEventsRequest) returns (GetEventsResponse) {}
+  rpc GetUserEvents(GetEventsRequest) returns (GetEventsResponse) {}
 }
 
 message Error {

@@ -8,7 +8,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/internal/config/calendar"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/config/calendar"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
