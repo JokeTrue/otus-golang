@@ -1,0 +1,15 @@
+scheduler:
+  url: "amqp://guest:guest@rabbit/"
+  exchange: ""
+  queuename: "calendar"
+  qos: 1
+
+app:
+  type: "local"
+
+database:
+  host: "postgres"
+  port: "5432"
+  user: "otus"
+  password: "otus"
+  name: "calendar"

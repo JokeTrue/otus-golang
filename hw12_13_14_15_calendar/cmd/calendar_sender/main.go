@@ -1,9 +1,9 @@
 package main
 
 import (
-	sender "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/calendar_sender"
-	calendarsender "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/config/calendar_sender"
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/rabbitmq"
+	sender "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/pkg/calendar_sender"
+	calendarsender "github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/pkg/config/calendar_sender"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/pkg/rabbitmq"
 	"github.com/sirupsen/logrus"
 )
 

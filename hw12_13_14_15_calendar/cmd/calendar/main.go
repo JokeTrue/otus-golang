@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/calendar"
+	"github.com/JokeTrue/otus-golang/hw12_13_14_15_calendar/pkg/calendar"
 	"github.com/sirupsen/logrus"
 )
 

@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/cockroachdb/apd v1.1.0 // indirect
+	github.com/cucumber/godog v0.10.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect
 	github.com/golang/mock v1.3.1
@@ -14,6 +15,8 @@ require (
 	github.com/jinzhu/now v1.1.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.7.0
+	github.com/martinohmann/godog-helpers v0.0.1
+	github.com/martinohmann/jsoncompare v0.1.0
 	github.com/pkg/errors v0.8.1
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.6.0
